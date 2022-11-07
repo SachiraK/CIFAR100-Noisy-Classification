@@ -2,6 +2,7 @@ from PIL import Image
 import csv
 import numpy as np
 from torchvision import transforms
+import os
 
 
 def train_transform(image):
@@ -11,14 +12,14 @@ def train_transform(image):
     ])(image).numpy()
 
 
-def get_chunks(csvfilename, root='/content/VNL/Yonsei-vnl-coding-assignment-vision-48hrs/dataset/'):
+def get_chunks(csvfilename):
     unique_labels = []
     label_dict = {}
     images_class = {}
     images_data = {}
     file_names = {}
 
-    with open(root + csvfilename, newline='') as csvfile:
+    with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '../dataset', csvfilename)), newline='') as csvfile:
         imagedata = csv.reader(csvfile, delimiter=',')
         for row in imagedata:
             img_name = row[0]
@@ -37,7 +38,8 @@ def get_chunks(csvfilename, root='/content/VNL/Yonsei-vnl-coding-assignment-visi
         file_arr = []
         for img in images_class[cls]:
             file_arr.append(img)
-            image = np.array(Image.open(root + img))
+            image = np.array(Image.open(os.path.abspath(os.path.join(
+                os.path.dirname(__file__), '../dataset', img))))
             temp_arr.append(train_transform(image))
         images_data[cls] = np.array(temp_arr).reshape(len(temp_arr), -1)
         file_names[cls] = file_arr

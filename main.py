@@ -7,16 +7,12 @@ from torch.utils.data import DataLoader
 import torchvision.transforms as transforms
 from torchvision import models
 
-import os
 import argparse
-import csv
 import time
 import copy
 from matplotlib import pyplot as plt
 
 from models.dla import *
-from utils import get_csv_data
-from views import clean_created_data, initial_data
 from dataset.datasets import *
 
 
@@ -29,8 +25,6 @@ parser.add_argument('--momentum', default=0.9,
                     help='momentum for optimizer')
 parser.add_argument('--w_dec', default=5e-4,
                     help='weight decay for optimizer')
-parser.add_argument('--root', default='',
-                    help='Path to the root folder of the dataset')
 parser.add_argument('--model', default='DLA', type=str,
                     choices=['ResNet18', 'ResNet50', 'ResNet101', 'DLA'])
 parser.add_argument('--csv_file', help='Path to csv file name')
@@ -53,9 +47,9 @@ transform_test = transforms.Compose([
 ])
 
 trainset = C100Dataset(args.csv_file,
-                       args.root, transform_train, 'train')
+                       transform_train, 'train')
 testset = C100Dataset(args.csv_file,
-                      args.root, transform_test, 'val')
+                      transform_test, 'val')
 
 trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
 testloader = DataLoader(testset, batch_size=32, shuffle=False)
@@ -184,12 +178,14 @@ axs[1].legend()
 axs[1].set_title('Accuracy curves for Training and Validation')
 
 # plt.show()
-plt.savefig('Acc/loss-Train/Val.png')
+plt.savefig(
+    f'{os.path.abspath(os.path.join(os.path.dirname(__file__), "Acc_loss-Train_Val.png"))}')
 
 # Save the model for evaluation
 if args.model == 'DLA':
-    torch.save(model_ft.state_dict(), '/dla-clean-labels-100-epoch')
+    torch.save(model_ft.state_dict(), os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "dla-clean-labels-100-epoch")))
 elif args.model in ['ResNet18', 'ResNet34', 'ResNet50', 'ResNet101']:
     model_scripted = torch.jit.script(model_ft)
     model_scripted.save(
-        f'/{args.model}-clean-labels-{args.num_epochs}-epoch.pt')
+        f'{os.path.abspath(os.path.join(os.path.dirname(__file__), args.model+"-clean-labels-"+str(args.num_epochs)+"-epoch.pt"))}')

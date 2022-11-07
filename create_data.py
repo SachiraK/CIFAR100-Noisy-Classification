@@ -13,8 +13,6 @@ from dataset.datasets import *
 parser = argparse.ArgumentParser(
     description='PyTorch CIFAR100 Training with Noisy Labels')
 parser.add_argument('--csv_file', help='Path to csv file name')
-parser.add_argument('--root', default='',
-                    help='Path to the root folder of the dataset')
 parser.add_argument('--thresh', '-r', default=0.5,
                     help='Threshold to filter out noisy data from csv file after clustering')
 args = parser.parse_args()
@@ -23,7 +21,7 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 # Read initial csv and get data
 images_class, images_data, file_names, label_dict = get_csv_data.get_chunks(
-    args.csv_file, args.root)
+    args.csv_file)
 
 # Write class name and value to csv
 with open('Classes.csv', 'w') as file:

@@ -21,8 +21,6 @@ def main():
     parser.add_argument('--w_dec', default=5e-4,
                         help='weight decay for optimizer')
     parser.add_argument('--csv_file', help='Path to csv file name')
-    parser.add_argument(
-        '--root', help='Path to the root folder of the dataset')
     parser.add_argument('--thresh', '-r', default=0.5,
                         help='Threshold to filter out noisy data from csv file after clustering')
     parser.add_argument('--model', default='DLA', type=str,
@@ -39,8 +37,8 @@ def main():
                              (0.2023, 0.1994, 0.2010)),
     ])
 
-    testset = C100TestDataset(args.root+args.csv_file,
-                              args.root, transform_test)
+    testset = C100TestDataset(args.csv_file,
+                              transform_test)
     testloader = DataLoader(testset, batch_size=8, shuffle=False)
 
     # Load model

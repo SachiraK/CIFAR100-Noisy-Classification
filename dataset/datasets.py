@@ -7,11 +7,10 @@ import os
 
 
 class C100Dataset(Dataset):
-    def __init__(self, csv_file, root_dir, transform=None, d_type='train'):
+    def __init__(self, csv_file, transform=None, d_type='train'):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the images.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
             d_type (string): Specifies whether it is training or validating
@@ -50,7 +49,6 @@ class C100Dataset(Dataset):
             self.all_images = self.all_images[limit:]
             self.all_labels = self.all_labels[limit:]
 
-        self.root_dir = root_dir
         self.transform = transform
 
     def __len__(self):
@@ -60,7 +58,8 @@ class C100Dataset(Dataset):
         if torch.is_tensor(idx):
             idx = idx.tolist()
 
-        img_name = os.path.join(self.root_dir, self.all_images[idx])
+        img_name = os.path.join(os.path.dirname(
+            __file__), self.all_images[idx])
         image = Image.open(img_name)
         # image = image.numpy().transpose((2, 0, 1))
         label = self.all_labels[idx]
@@ -72,11 +71,10 @@ class C100Dataset(Dataset):
 
 
 class C100TestDataset(C100Dataset):
-    def __init__(self, csv_file, root_dir, transform=None):
+    def __init__(self, csv_file, transform=None):
         """
         Args:
             csv_file (string): Path to the csv file with annotations.
-            root_dir (string): Directory with all the images.
             transform (callable, optional): Optional transform to be applied
                 on a sample.
         """
@@ -91,7 +89,7 @@ class C100TestDataset(C100Dataset):
                 self.label_dict[row[0]] = int(row[1])
 
         self.unique_labels = []
-        with open(csv_file, newline='') as csvfile:
+        with open(os.path.abspath(os.path.join(os.path.dirname(__file__), '../dataset', csv_file)), newline='') as csvfile:
             imagedata = csv.reader(csvfile, delimiter=',')
             for row in imagedata:
                 img_name = row[0]
@@ -100,5 +98,4 @@ class C100TestDataset(C100Dataset):
                 self.all_images.append(img_name)
                 self.all_labels.append(self.label_dict[label])
 
-        self.root_dir = root_dir
         self.transform = transform
