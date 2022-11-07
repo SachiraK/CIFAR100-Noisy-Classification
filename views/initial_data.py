@@ -25,5 +25,6 @@ def plot_graph(images_data, threshold=0.5):
         axs[idx//10, idx % 10].plot(x, y2, '-r', label='y=x+1', c='blue')
         axs[idx//10, idx % 10].set_title(f'Class {each_cls}')
 
-    plt.show()
+    # plt.show()
+    plt.savefig('Initial Data Distribution.png')
     return all_labels

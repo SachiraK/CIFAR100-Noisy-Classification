@@ -25,12 +25,13 @@ parser = argparse.ArgumentParser(
 parser.add_argument('--lr', default=0.001, type=float, help='learning rate')
 parser.add_argument('--num_epochs', default=100,
                     type=float, help='number of epochs')
-parser.add_argument('--momentum', '-r', default=0.9,
+parser.add_argument('--momentum', default=0.9,
                     help='momentum for optimizer')
-parser.add_argument('--w_dec', '-r', default=5e-4,
+parser.add_argument('--w_dec', default=5e-4,
                     help='weight decay for optimizer')
 parser.add_argument('--csv_file', help='Path to csv file name')
-parser.add_argument('--root', help='Path to the root folder of the dataset')
+parser.add_argument('--root', default='',
+                    help='Path to the root folder of the dataset')
 parser.add_argument('--thresh', '-r', default=0.5,
                     help='Threshold to filter out noisy data from csv file after clustering')
 parser.add_argument('--model', default='DLA', type=str,
@@ -55,7 +56,7 @@ clean_files, clean_data = clean_created_data.get_clean_data(
     all_labels, file_names, images_data, args.thresh)
 
 # Write clean data to a new CSV file
-with open('New Data.csv', 'w') as file:
+with open('/CIFAR100-Noisy-Classification/New Data.csv', 'w') as file:
     writer = csv.writer(file)
     for cls in list(clean_files.keys()):
         for image in clean_files[cls]:

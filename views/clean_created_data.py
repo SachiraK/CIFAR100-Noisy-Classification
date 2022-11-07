@@ -46,5 +46,6 @@ def get_clean_data(all_labels, file_names, images_data, threshold):
         axs[idx//10, idx %
             10].set_title(f'Class {cls} - {len(clean_data[cls])}')
 
-    plt.show()
+    # plt.show()
+    plt.savefig('Clean Data Distribution.png')
     return clean_files, clean_data
