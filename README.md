@@ -9,4 +9,5 @@ To train the noisy CIFAR-100 dataset, please run the following scripts in order.
    This will train the model on the specified feature extractor. Possible choices for the model are 'ResNet18', 'ResNet50', 'ResNet101' and 'DLA'.
 
 To obtain the test accuracy of the model, please run the following script.
+
 python test.py --csv_file data/cifar100_nl_test.csv --load_path {PATH OF THE SAVED TRAINED MODEL} --model {MODEL USED FOR TRAINING}
