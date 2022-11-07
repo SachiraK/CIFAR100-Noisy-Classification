@@ -16,11 +16,9 @@ def main():
         description='PyTorch CIFAR100 Training with Noisy Labels')
     parser.add_argument('--lr', default=0.001,
                         type=float, help='learning rate')
-    parser.add_argument('--num_epochs', default=100,
-                        type=float, help='number of epochs')
-    parser.add_argument('--momentum', '-r', default=0.9,
+    parser.add_argument('--momentum', default=0.9,
                         help='momentum for optimizer')
-    parser.add_argument('--w_dec', '-r', default=5e-4,
+    parser.add_argument('--w_dec', default=5e-4,
                         help='weight decay for optimizer')
     parser.add_argument('--csv_file', help='Path to csv file name')
     parser.add_argument(
@@ -35,12 +33,6 @@ def main():
 
     torch.cuda.set_device(device)
 
-    # dataset setting
-    if args.dataset in ['cifar10']:
-        args.num_classes = 10
-    elif args.dataset in ['cifar100']:
-        args.num_classes = 100
-
     transform_test = transforms.Compose([
         transforms.ToTensor(),
         transforms.Normalize((0.4914, 0.4822, 0.4465),
@@ -49,14 +41,14 @@ def main():
 
     testset = C100TestDataset(args.root+args.csv_file,
                               args.root, transform_test)
-    testloader = DataLoader(testset, batch_size=32, shuffle=False)
+    testloader = DataLoader(testset, batch_size=8, shuffle=False)
 
     # Load model
     if args.model == 'DLA':
         model_ft = DLA(num_classes=100)
         model_ft.load_state_dict(torch.load(args.load_path))
     elif args.model in ['ResNet18', 'ResNet34', 'ResNet50', 'ResNet101']:
-        model_ft = torch.jit.load('model_scripted.pt')
+        model_ft = torch.jit.load(args.load_path)
 
     model_ft = model_ft.to(device)
     model_ft.eval()

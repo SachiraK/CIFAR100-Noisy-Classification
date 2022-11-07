@@ -29,38 +29,15 @@ parser.add_argument('--momentum', default=0.9,
                     help='momentum for optimizer')
 parser.add_argument('--w_dec', default=5e-4,
                     help='weight decay for optimizer')
-parser.add_argument('--csv_file', help='Path to csv file name')
 parser.add_argument('--root', default='',
                     help='Path to the root folder of the dataset')
-parser.add_argument('--thresh', '-r', default=0.5,
-                    help='Threshold to filter out noisy data from csv file after clustering')
 parser.add_argument('--model', default='DLA', type=str,
-                    choices=['ResNet18', 'ResNet34', 'ResNet50', 'ResNet101', 'DLA'])
+                    choices=['ResNet18', 'ResNet50', 'ResNet101', 'DLA'])
+parser.add_argument('--csv_file', help='Path to csv file name')
 args = parser.parse_args()
+args.num_epochs = int(args.num_epochs)
 
 device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
-
-# Read initial csv and get data
-images_class, images_data, file_names, label_dict = get_csv_data.get_chunks(
-    args.csv_file, args.root)
-
-# Write class name and value to csv
-with open('Classes.csv', 'w') as file:
-    writer = csv.writer(file)
-    for cls in list(label_dict.keys()):
-        writer.writerow([cls, label_dict[cls]])
-
-# Plot distribution of initial and clean data
-all_labels = initial_data.plot_graph(images_data, threshold=args.thresh)
-clean_files, clean_data = clean_created_data.get_clean_data(
-    all_labels, file_names, images_data, args.thresh)
-
-# Write clean data to a new CSV file
-with open('/CIFAR100-Noisy-Classification/New Data.csv', 'w') as file:
-    writer = csv.writer(file)
-    for cls in list(clean_files.keys()):
-        for image in clean_files[cls]:
-            writer.writerow([image, cls])
 
 # Create CIFAR100 dataset loader
 transform_train = transforms.Compose([
@@ -75,9 +52,9 @@ transform_test = transforms.Compose([
     transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)),
 ])
 
-trainset = C100Dataset('/content/New Data.csv',
+trainset = C100Dataset(args.csv_file,
                        args.root, transform_train, 'train')
-testset = C100Dataset('/content/New Data.csv',
+testset = C100Dataset(args.csv_file,
                       args.root, transform_test, 'val')
 
 trainloader = DataLoader(trainset, batch_size=32, shuffle=True)
@@ -171,8 +148,13 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=50):
 
 if args.model == 'DLA':
     model_ft = DLA(num_classes=100)
-elif args.model in ['ResNet18', 'ResNet34', 'ResNet50', 'ResNet101']:
-    model_ft = models[args.model](pretrained=True)
+elif args.model in ['ResNet18', 'ResNet50', 'ResNet101']:
+    if args.model == 'ResNet18':
+        model_ft = models.resnet18(pretrained=True)
+    elif args.model == 'ResNet50':
+        model_ft = models.resnet50(pretrained=True)
+    elif args.model == 'ResNet101':
+        model_ft = models.resnet101(pretrained=True)
     num_ftrs = model_ft.fc.in_features
     num_classes = 100
     model_ft.fc = nn.Linear(num_ftrs, num_classes)
@@ -201,7 +183,8 @@ axs[1].plot(epoch_range, val_acc_arr, c='red', label='Validation Acc')
 axs[1].legend()
 axs[1].set_title('Accuracy curves for Training and Validation')
 
-plt.show()
+# plt.show()
+plt.savefig('Acc/loss-Train/Val.png')
 
 # Save the model for evaluation
 if args.model == 'DLA':

@@ -1,9 +1,9 @@
+import torch
 from torch.utils.data import Dataset
-import os
-from torchvision import transforms
 from PIL import Image
 import random
 import csv
+import os
 
 
 class C100Dataset(Dataset):
@@ -88,7 +88,7 @@ class C100TestDataset(C100Dataset):
         with open('Classes.csv', newline='') as classfile:
             classdata = csv.reader(classfile, delimiter=',')
             for row in classdata:
-                self.label_dict[row[0]] = row[1]
+                self.label_dict[row[0]] = int(row[1])
 
         self.unique_labels = []
         with open(csv_file, newline='') as csvfile:
